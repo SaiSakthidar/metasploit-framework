@@ -12,6 +12,38 @@ module Metasploit
           begin
             Timeout.timeout(timeout) do
               info = ssh_socket.exec!("id\n").to_s
+              if !info.valid_encoding?
+                # Try to detect Windows code page and re-interpret accordingly.
+                begin
+                  chcp = ssh_socket.exec!("chcp\n").to_s
+                  chcp = chcp.dup.force_encoding(Encoding::ASCII_8BIT)
+                  codepage = chcp[/\d+$/]
+                  if codepage
+                    enc = Encoding.find("CP#{codepage}") rescue nil
+                    if enc
+                      cp_info = info.dup.force_encoding(enc)
+                      info = cp_info if cp_info.valid_encoding?
+                    end
+                  end
+                rescue StandardError
+                end
+
+                if !info.valid_encoding?
+                  begin
+                    locale = ssh_socket.exec!("printf '%s\n' \"$LC_ALL\" \"$LANG\"\n").to_s
+                    encoding_name = locale[/\.(\S+)/, 1]
+                    if encoding_name
+                      enc = Encoding.find(encoding_name) rescue nil
+                      if enc
+                        lc_info = info.dup.force_encoding(enc)
+                        info = lc_info if lc_info.valid_encoding?
+                      end
+                    end
+                  rescue StandardError
+                  end
+                end
+              end
+              info = info.scrub unless info.valid_encoding?
               if (info =~ /id=/)
                 info << ssh_socket.exec!("uname -a\n").to_s
                 if (info =~ /JUNOS /)
