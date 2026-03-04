@@ -212,6 +212,13 @@ RSpec.describe 'Meterpreter' do
                       source: Base64.strict_encode64(File.binread(payload_process.payload_path)),
                       type: Allure::ContentType::TXT
                     )
+                    if File.exist?(payload_stdout_and_stderr_file.path)
+                      Allure.add_attachment(
+                        name: 'Payload stdout and stderr',
+                        source: Base64.strict_encode64(File.binread(payload_stdout_and_stderr_file.path)),
+                        type: Allure::ContentType::TXT
+                      )
+                    end
 
                     current_payload_status
                   end)
@@ -371,6 +378,13 @@ RSpec.describe 'Meterpreter' do
                         source: Base64.strict_encode64(File.binread(payload_process.payload_path)),
                         type: Allure::ContentType::TXT
                       )
+                      if File.exist?(payload_stdout_and_stderr_file.path)
+                        Allure.add_attachment(
+                          name: 'Payload stdout and stderr',
+                          source: Base64.strict_encode64(File.binread(payload_stdout_and_stderr_file.path)),
+                          type: Allure::ContentType::TXT
+                        )
+                      end
 
                       current_payload_status
                     end)
