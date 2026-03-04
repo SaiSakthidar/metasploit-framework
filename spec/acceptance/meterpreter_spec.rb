@@ -1,8 +1,46 @@
 require 'acceptance_spec_helper'
 require 'base64'
+require 'open3'
 
 RSpec.describe 'Meterpreter' do
   include_context 'wait_for_expect'
+
+  def attach_payload_diagnostics_once(payload_path)
+    return unless payload_path && File.exist?(payload_path)
+    return unless RbConfig::CONFIG['host_os'].include?('darwin')
+
+    if self.class.instance_variable_defined?(:@payload_diagnostics_written) &&
+       self.class.instance_variable_get(:@payload_diagnostics_written)
+      return
+    end
+    self.class.instance_variable_set(:@payload_diagnostics_written, true)
+
+    diagnostics = {
+      'file' => ['file', payload_path],
+      'otool -l' => ['otool', '-l', payload_path],
+      'vtool -show' => ['vtool', '-show', payload_path],
+      'codesign -dv --verbose=4' => ['codesign', '-dv', '--verbose=4', payload_path]
+    }
+
+    diagnostics.each do |name, cmd|
+      begin
+        stdout, stderr, status = Open3.capture3(*cmd)
+        content = +"$ #{cmd.join(' ')}\n"
+        content << "status: #{status.exitstatus}\n"
+        content << "stdout:\n#{stdout}\n"
+        content << "stderr:\n#{stderr}\n"
+      rescue Errno::ENOENT => e
+        content = +"$ #{cmd.join(' ')}\n"
+        content << "error: #{e.class}: #{e.message}\n"
+      end
+
+      Allure.add_attachment(
+        name: "payload diagnostics: #{name}",
+        source: Base64.strict_encode64(content),
+        type: Allure::ContentType::TXT
+      )
+    end
+  end
 
   # Tests to ensure that Meterpreter is consistent across all implementations/operation systems
   METERPRETER_PAYLOADS = Acceptance::Session.with_session_name_merged(
@@ -219,6 +257,7 @@ RSpec.describe 'Meterpreter' do
                         type: Allure::ContentType::TXT
                       )
                     end
+                    attach_payload_diagnostics_once(payload_process.payload_path)
 
                     current_payload_status
                   end)
@@ -385,6 +424,7 @@ RSpec.describe 'Meterpreter' do
                           type: Allure::ContentType::TXT
                         )
                       end
+                      attach_payload_diagnostics_once(payload_process.payload_path)
 
                       current_payload_status
                     end)
