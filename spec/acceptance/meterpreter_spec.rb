@@ -39,6 +39,10 @@ RSpec.describe 'Meterpreter' do
         source: Base64.strict_encode64(content),
         type: Allure::ContentType::TXT
       )
+
+      if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
+        $stderr.puts("\n=== payload diagnostics: #{name} ===\n#{content}")
+      end
     end
   end
 
@@ -256,6 +260,9 @@ RSpec.describe 'Meterpreter' do
                         source: Base64.strict_encode64(File.binread(payload_stdout_and_stderr_file.path)),
                         type: Allure::ContentType::TXT
                       )
+                      if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
+                        $stderr.puts("\n=== payload stdout and stderr ===\n#{File.binread(payload_stdout_and_stderr_file.path)}")
+                      end
                     end
                     attach_payload_diagnostics_once(payload_process.payload_path)
 
@@ -423,6 +430,9 @@ RSpec.describe 'Meterpreter' do
                           source: Base64.strict_encode64(File.binread(payload_stdout_and_stderr_file.path)),
                           type: Allure::ContentType::TXT
                         )
+                        if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
+                          $stderr.puts("\n=== payload stdout and stderr ===\n#{File.binread(payload_stdout_and_stderr_file.path)}")
+                        end
                       end
                       attach_payload_diagnostics_once(payload_process.payload_path)
 

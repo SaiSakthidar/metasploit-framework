@@ -337,6 +337,7 @@ jobs:
         env:
           SPEC_HELPER_LOAD_METASPLOIT: false
           SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+          PRINT_PAYLOAD_DIAGNOSTICS: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && '1' || '' }}
         # Unix run command:
         #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
         # Windows cmd command:
