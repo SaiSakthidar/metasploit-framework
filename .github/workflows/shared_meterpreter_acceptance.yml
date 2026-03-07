@@ -338,6 +338,7 @@ jobs:
           SPEC_HELPER_LOAD_METASPLOIT: false
           SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
           PRINT_PAYLOAD_DIAGNOSTICS: "1"
+          PAYLOAD_DIAGNOSTICS_PATH: "payload_diagnostics.log"
         # Unix run command:
         #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
         # Windows cmd command:
@@ -347,6 +348,18 @@ jobs:
         # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
         run: |
           bundle exec rspec spec/acceptance/meterpreter_spec.rb
+        working-directory: metasploit-framework
+
+      - name: Dump payload diagnostics log
+        if: always()
+        run: |
+          if [ -f payload_diagnostics.log ]; then
+            echo "=== payload diagnostics log (start) ==="
+            cat payload_diagnostics.log
+            echo "=== payload diagnostics log (end) ==="
+          else
+            echo "No payload diagnostics log found."
+          fi
         working-directory: metasploit-framework
 
       - name: Archive results

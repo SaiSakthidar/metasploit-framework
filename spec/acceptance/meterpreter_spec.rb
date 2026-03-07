@@ -42,8 +42,21 @@ RSpec.describe 'Meterpreter' do
 
       if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
         $stderr.puts("\n=== payload diagnostics: #{name} ===\n#{content}")
+        append_payload_diagnostics_log("\n=== payload diagnostics: #{name} ===\n#{content}")
       end
     end
+  end
+
+  def append_payload_diagnostics_log(content)
+    path = ENV['PAYLOAD_DIAGNOSTICS_PATH']
+    return if path.nil? || path.empty?
+
+    File.open(path, 'a') do |file|
+      file.write(content)
+      file.write("\n")
+    end
+  rescue StandardError => e
+    $stderr.puts("Failed to append payload diagnostics log: #{e.class}: #{e.message}")
   end
 
   # Tests to ensure that Meterpreter is consistent across all implementations/operation systems
@@ -261,7 +274,9 @@ RSpec.describe 'Meterpreter' do
                         type: Allure::ContentType::TXT
                       )
                       if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
-                        $stderr.puts("\n=== payload stdout and stderr ===\n#{File.binread(payload_stdout_and_stderr_file.path)}")
+                        payload_output = File.binread(payload_stdout_and_stderr_file.path)
+                        $stderr.puts("\n=== payload stdout and stderr ===\n#{payload_output}")
+                        append_payload_diagnostics_log("\n=== payload stdout and stderr ===\n#{payload_output}")
                       end
                     end
                     attach_payload_diagnostics_once(payload_process.payload_path)
@@ -431,7 +446,9 @@ RSpec.describe 'Meterpreter' do
                           type: Allure::ContentType::TXT
                         )
                         if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
-                          $stderr.puts("\n=== payload stdout and stderr ===\n#{File.binread(payload_stdout_and_stderr_file.path)}")
+                          payload_output = File.binread(payload_stdout_and_stderr_file.path)
+                          $stderr.puts("\n=== payload stdout and stderr ===\n#{payload_output}")
+                          append_payload_diagnostics_log("\n=== payload stdout and stderr ===\n#{payload_output}")
                         end
                       end
                       attach_payload_diagnostics_once(payload_process.payload_path)
