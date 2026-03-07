@@ -349,12 +349,14 @@ jobs:
         run: |
           echo "PRINT_PAYLOAD_DIAGNOSTICS=$PRINT_PAYLOAD_DIAGNOSTICS"
           echo "PAYLOAD_DIAGNOSTICS_PATH=$PAYLOAD_DIAGNOSTICS_PATH"
+          touch "$PAYLOAD_DIAGNOSTICS_PATH"
           bundle exec rspec spec/acceptance/meterpreter_spec.rb
         working-directory: metasploit-framework
 
       - name: Dump payload diagnostics log
         if: always()
         run: |
+          ls -la "${{ github.workspace }}/metasploit-framework" || true
           if [ -f "${{ github.workspace }}/metasploit-framework/payload_diagnostics.log" ]; then
             echo "=== payload diagnostics log (start) ==="
             cat "${{ github.workspace }}/metasploit-framework/payload_diagnostics.log"

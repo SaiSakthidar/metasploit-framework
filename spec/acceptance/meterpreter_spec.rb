@@ -41,6 +41,8 @@ RSpec.describe 'Meterpreter' do
       )
 
       if ENV['PRINT_PAYLOAD_DIAGNOSTICS'] == '1'
+        $stderr.puts("PRINT_PAYLOAD_DIAGNOSTICS=#{ENV['PRINT_PAYLOAD_DIAGNOSTICS']}")
+        $stderr.puts("PAYLOAD_DIAGNOSTICS_PATH=#{ENV['PAYLOAD_DIAGNOSTICS_PATH']}")
         $stderr.puts("\n=== payload diagnostics: #{name} ===\n#{content}")
         append_payload_diagnostics_log("\n=== payload diagnostics: #{name} ===\n#{content}")
       end
@@ -49,6 +51,9 @@ RSpec.describe 'Meterpreter' do
 
   def append_payload_diagnostics_log(content)
     path = ENV['PAYLOAD_DIAGNOSTICS_PATH']
+    if path.nil? || path.empty?
+      path = File.join(Dir.pwd, 'payload_diagnostics.log')
+    end
     return if path.nil? || path.empty?
 
     File.open(path, 'a') do |file|
