@@ -18,6 +18,11 @@ on:
         default: ''
         required: false
         type: string
+      mettle_repository:
+        description: "mettle repository to build from (defaults to rapid7/mettle)"
+        default: 'rapid7/mettle'
+        required: false
+        type: string
       build_mettle:
         description: "Whether or not to build mettle"
         default: false
@@ -154,7 +159,7 @@ jobs:
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         uses: actions/checkout@v4
         with:
-          repository: rapid7/mettle
+          repository: ${{ inputs.mettle_repository }}
           path: mettle
           ref: ${{ inputs.mettle_commit }}
 
