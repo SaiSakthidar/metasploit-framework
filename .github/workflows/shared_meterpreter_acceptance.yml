@@ -189,6 +189,18 @@ jobs:
           rake build
         working-directory: mettle
 
+      - name: Upload macOS mettle build diagnostics
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && inputs.build_mettle }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mettle-macos-build-debug
+          if-no-files-found: warn
+          path: |
+            mettle/build/x86_64-apple-darwin/bin/mettle
+            mettle/build/x86_64-apple-darwin/bin/mettle.dylib
+            mettle/build/x86_64-apple-darwin/bin/*.txt
+            mettle/pkg/*.gem
+
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
