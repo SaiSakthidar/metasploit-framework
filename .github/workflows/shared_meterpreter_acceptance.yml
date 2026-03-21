@@ -8,6 +8,11 @@ on:
         default: ''
         required: false
         type: string
+      metasploit_framework_repository:
+        description: "metasploit-framework repository to build with"
+        default: 'rapid7/metasploit-framework'
+        required: false
+        type: string
       metasploit_payloads_commit:
         description: "metasploit-payloads commit to build with"
         default: ''
@@ -204,7 +209,7 @@ jobs:
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-framework
+          repository: ${{ inputs.metasploit_framework_repository }}
           path: metasploit-framework
           ref: ${{ inputs.metasploit_framework_commit }}
 
